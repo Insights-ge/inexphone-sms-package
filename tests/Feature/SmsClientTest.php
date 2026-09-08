@@ -307,4 +307,30 @@ class SmsClientTest extends TestCase
                 && ! array_key_exists('delivery_callback_url', $request->data());
         });
     }
+
+    public function test_it_does_not_send_callback_urls_with_bulk_sms_when_they_are_not_provided(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/bulk' => Http::response([
+                'message' => 'Bulk SMS submitted successfully.',
+                'data' => [
+                    'id' => 'bulk-no-callback-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::sendBulk(
+            subject: 'Bulk No Callback Test',
+            message: 'Hello',
+            phoneNumbers: [
+                '995591111111',
+                '995592222222',
+            ],
+        );
+
+        Http::assertSent(function ($request) {
+            return ! array_key_exists('submit_callback_url', $request->data())
+                && ! array_key_exists('delivery_callback_url', $request->data());
+        });
+    }
 }
