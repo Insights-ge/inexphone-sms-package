@@ -150,4 +150,33 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_finds_an_sms(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/test-uuid' => Http::response([
+                'message' => 'SMS retrieved successfully.',
+                'data' => [
+                    'id' => 'test-uuid',
+                    'attributes' => [
+                        'number' => '995591111111',
+                        'subject' => 'Test',
+                        'message' => 'Hello',
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $response = Sms::find('test-uuid');
+
+        $this->assertSame(
+            'SMS retrieved successfully.',
+            $response['message']
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/test-uuid'
+                && $request->method() === 'GET';
+        });
+    }
+
 }
