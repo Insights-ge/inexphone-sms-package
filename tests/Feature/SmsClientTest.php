@@ -473,4 +473,14 @@ class SmsClientTest extends TestCase
         );
     }
 
+    public function test_it_resolves_sms_facade(): void
+    {
+        $client = Sms::getFacadeRoot();
+
+        $this->assertInstanceOf(
+            \Inexphone\Sms\SmsClient::class,
+            $client
+        );
+    }
+
 }
