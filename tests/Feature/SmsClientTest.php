@@ -461,4 +461,16 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_resolves_sms_client_interface(): void
+    {
+        $client = $this->app->make(
+            \Inexphone\Sms\Contracts\SmsClientInterface::class
+        );
+
+        $this->assertInstanceOf(
+            \Inexphone\Sms\SmsClient::class,
+            $client
+        );
+    }
+
 }
