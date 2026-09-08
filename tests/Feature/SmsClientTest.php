@@ -390,5 +390,29 @@ class SmsClientTest extends TestCase
                 && $request->method() === 'GET';
         });
     }
-    
+
+    public function test_it_sends_required_api_headers(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'SMS submitted successfully.',
+                'data' => [
+                    'id' => 'headers-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::send(
+            phone: '995591111111',
+            subject: 'Headers Test',
+            message: 'Hello',
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Authorization', 'Bearer test-token')
+                && $request->hasHeader('Accept', 'application/json')
+                && $request->hasHeader('Accept-Language', 'ka');
+        });
+    }
+
 }
