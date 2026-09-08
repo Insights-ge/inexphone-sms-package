@@ -5,9 +5,10 @@ namespace Inexphone\Sms;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Inexphone\Sms\Contracts\SmsClientInterface;
 use Inexphone\Sms\Exceptions\SmsException;
 
-class SmsClient
+class SmsClient implements SmsClientInterface
 {
     public function __construct(
         protected string $baseUrl,
