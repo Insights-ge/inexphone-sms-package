@@ -415,4 +415,28 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_uses_configured_api_language(): void
+    {
+        $this->app['config']->set('inexphone-sms.language', 'en');
+
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'SMS submitted successfully.',
+                'data' => [
+                    'id' => 'language-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::send(
+            phone: '995591111111',
+            subject: 'Language Test',
+            message: 'Hello',
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Accept-Language', 'en');
+        });
+    }
+    
 }
