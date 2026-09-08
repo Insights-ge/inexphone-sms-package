@@ -333,4 +333,25 @@ class SmsClientTest extends TestCase
                 && ! array_key_exists('delivery_callback_url', $request->data());
         });
     }
+
+    public function test_it_throws_sms_exception_when_finding_sms_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/invalid-uuid' => Http::response([
+                'message' => 'SMS with provided uuid not found.',
+            ], 404),
+        ]);
+
+        try {
+            Sms::find('invalid-uuid');
+
+            $this->fail('SmsException was not thrown.');
+        } catch (\Inexphone\Sms\Exceptions\SmsException $exception) {
+            $this->assertSame(404, $exception->status);
+            $this->assertSame(
+                'SMS with provided uuid not found.',
+                $exception->getMessage()
+            );
+        }
+    }
 }
