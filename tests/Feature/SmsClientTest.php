@@ -108,4 +108,46 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_lists_sms_messages(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms*' => Http::response([
+                'message' => 'SMS list retrieved successfully.',
+                'data' => [
+                    [
+                        'id' => 'test-uuid',
+                        'attributes' => [
+                            'number' => '995591111111',
+                            'subject' => 'Test',
+                            'message' => 'Hello',
+                        ],
+                    ],
+                ],
+                'meta' => [
+                    'pagination' => [
+                        'currentPage' => 1,
+                        'perPage' => 15,
+                        'total' => 1,
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $response = Sms::list([
+            'page' => 1,
+            'perPage' => 15,
+            'sort' => '-createDate',
+        ]);
+
+        $this->assertSame(
+            'SMS list retrieved successfully.',
+            $response['message']
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms?page=1&perPage=15&sort=-createDate'
+                && $request->method() === 'GET';
+        });
+    }
+
 }
