@@ -5,6 +5,7 @@ namespace Inexphone\Sms;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Inexphone\Sms\Exceptions\SmsException;
+use Illuminate\Http\Client\Response;
 
 class SmsClient
 {
@@ -26,7 +27,7 @@ class SmsClient
             ->timeout($this->timeout);
     }
 
-    protected function handleResponse($response): array
+    protected function handleResponse(Response $response): array
     {
         if ($response->failed()) {
             throw new SmsException(
