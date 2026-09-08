@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Inexphone\Sms\Facades;
 
 use Illuminate\Support\Facades\Facade;
