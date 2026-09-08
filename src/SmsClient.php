@@ -3,9 +3,9 @@
 namespace Inexphone\Sms;
 
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Inexphone\Sms\Exceptions\SmsException;
-use Illuminate\Http\Client\Response;
 
 class SmsClient
 {
@@ -49,14 +49,14 @@ class SmsClient
         ?string $deliveryCallbackUrl = null,
     ): array {
         return $this->handleResponse(
-            $this->http()->post('/sms/one', [
+            $this->http()->post('/sms/one', array_filter([
                 'phone' => $phone,
                 'subject' => $subject,
                 'message' => $message,
                 'ignore_blacklist' => $ignoreBlacklist,
                 'submit_callback_url' => $submitCallbackUrl,
                 'delivery_callback_url' => $deliveryCallbackUrl,
-            ])
+            ], static fn ($value) => $value !== null))
         );
     }
 
@@ -82,13 +82,13 @@ class SmsClient
         ?string $deliveryCallbackUrl = null,
     ): array {
         return $this->handleResponse(
-            $this->http()->post('/sms/bulk', [
+            $this->http()->post('/sms/bulk', array_filter([
                 'subject' => $subject,
                 'message' => $message,
                 'phone_numbers' => $phoneNumbers,
                 'submit_callback_url' => $submitCallbackUrl,
                 'delivery_callback_url' => $deliveryCallbackUrl,
-            ])
+            ], static fn ($value) => $value !== null))
         );
     }
 
