@@ -3,6 +3,7 @@
 namespace Inexphone\Sms;
 
 use Illuminate\Support\ServiceProvider;
+use Inexphone\Sms\Contracts\SmsClientInterface;
 
 class SmsServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,11 @@ class SmsServiceProvider extends ServiceProvider
                 timeout: $app['config']->get('inexphone-sms.timeout'),
             );
         });
+
+        $this->app->bind(
+            SmsClientInterface::class,
+            SmsClient::class
+        );
     }
 
     public function boot(): void
