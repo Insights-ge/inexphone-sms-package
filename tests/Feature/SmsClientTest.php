@@ -228,4 +228,59 @@ class SmsClientTest extends TestCase
         }
     }
 
+    public function test_it_sends_callback_urls_with_single_sms(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'SMS submitted successfully.',
+                'data' => [
+                    'id' => 'callback-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::send(
+            phone: '995591111111',
+            subject: 'Callback Test',
+            message: 'Hello',
+            ignoreBlacklist: true,
+            submitCallbackUrl: 'https://example.com/submit',
+            deliveryCallbackUrl: 'https://example.com/delivery',
+        );
+
+        Http::assertSent(function ($request) {
+            return $request['ignore_blacklist'] === true
+                && $request['submit_callback_url'] === 'https://example.com/submit'
+                && $request['delivery_callback_url'] === 'https://example.com/delivery';
+        });
+    }
+
+    public function test_it_sends_callback_urls_with_bulk_sms(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/bulk' => Http::response([
+                'message' => 'Bulk SMS submitted successfully.',
+                'data' => [
+                    'id' => 'bulk-callback-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::sendBulk(
+            subject: 'Bulk Callback Test',
+            message: 'Hello',
+            phoneNumbers: [
+                '995591111111',
+                '995592222222',
+            ],
+            submitCallbackUrl: 'https://example.com/submit',
+            deliveryCallbackUrl: 'https://example.com/delivery',
+        );
+
+        Http::assertSent(function ($request) {
+            return $request['submit_callback_url'] === 'https://example.com/submit'
+                && $request['delivery_callback_url'] === 'https://example.com/delivery';
+        });
+    }
+
 }
