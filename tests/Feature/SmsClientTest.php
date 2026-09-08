@@ -283,4 +283,28 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_does_not_send_callback_urls_when_they_are_not_provided(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'SMS submitted successfully.',
+                'data' => [
+                    'id' => 'no-callback-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::send(
+            phone: '995591111111',
+            subject: 'No Callback Test',
+            message: 'Hello',
+        );
+
+        Http::assertSent(function ($request) {
+            return ! $request->hasHeader('submit_callback_url')
+                && ! $request->hasHeader('delivery_callback_url')
+                && ! array_key_exists('submit_callback_url', $request->data())
+                && ! array_key_exists('delivery_callback_url', $request->data());
+        });
+    }
 }
