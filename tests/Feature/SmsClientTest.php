@@ -438,5 +438,27 @@ class SmsClientTest extends TestCase
             return $request->hasHeader('Accept-Language', 'en');
         });
     }
-    
+
+    public function test_it_uses_georgian_language_by_default(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'SMS submitted successfully.',
+                'data' => [
+                    'id' => 'default-language-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::send(
+            phone: '995591111111',
+            subject: 'Default Language Test',
+            message: 'Hello',
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Accept-Language', 'ka');
+        });
+    }
+
 }
