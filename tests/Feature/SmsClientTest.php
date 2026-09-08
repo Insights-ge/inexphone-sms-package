@@ -179,4 +179,25 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_throws_sms_exception_when_sending_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
+                'message' => 'Invalid phone number.',
+                'errors' => [
+                    'phone' => ['The phone number is invalid.'],
+                ],
+            ], 422),
+        ]);
+
+        $this->expectException(\Inexphone\Sms\Exceptions\SmsException::class);
+        $this->expectExceptionMessage('Invalid phone number.');
+
+        Sms::send(
+            phone: 'invalid',
+            subject: 'Test',
+            message: 'Hello',
+        );
+    }
+    
 }
