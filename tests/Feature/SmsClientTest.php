@@ -39,4 +39,36 @@ class SmsClientTest extends TestCase
                 && $request['ignore_blacklist'] === false;
         });
     }
+
+    public function test_it_sends_a_commercial_sms(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/commercial' => Http::response([
+                'message' => 'Commercial SMS submitted successfully.',
+                'data' => [
+                    'id' => 'commercial-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        $response = Sms::sendCommercial(
+            phone: '995591950549',
+            subject: 'Commercial Test',
+            message: 'Commercial message',
+        );
+
+        $this->assertSame(
+            'Commercial SMS submitted successfully.',
+            $response['message']
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/commercial'
+                && $request->method() === 'POST'
+                && $request['phone'] === '995591950549'
+                && $request['subject'] === 'Commercial Test'
+                && $request['message'] === 'Commercial message';
+        });
+    }
+    
 }
