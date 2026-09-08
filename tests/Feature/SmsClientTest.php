@@ -354,4 +354,41 @@ class SmsClientTest extends TestCase
             );
         }
     }
+
+    public function test_it_lists_sms_messages_with_filters(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms*' => Http::response([
+                'message' => 'SMS list retrieved successfully.',
+                'data' => [],
+                'meta' => [
+                    'pagination' => [
+                        'currentPage' => 2,
+                        'perPage' => 10,
+                        'total' => 0,
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        Sms::list([
+            'page' => 2,
+            'perPage' => 10,
+            'sort' => '-createDate',
+            'filters' => [
+                'subject' => 'Test',
+                'type' => 'transactional',
+                'state' => 'delivered',
+                'number' => '995591111111',
+                'dateStart' => '01/09/2026',
+                'dateEnd' => '08/09/2026',
+            ],
+        ]);
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms?page=2&perPage=10&sort=-createDate&filters%5Bsubject%5D=Test&filters%5Btype%5D=transactional&filters%5Bstate%5D=delivered&filters%5Bnumber%5D=995591111111&filters%5BdateStart%5D=01%2F09%2F2026&filters%5BdateEnd%5D=08%2F09%2F2026'
+                && $request->method() === 'GET';
+        });
+    }
+    
 }
