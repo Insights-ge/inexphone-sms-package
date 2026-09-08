@@ -4,6 +4,7 @@ namespace Inexphone\Sms;
 
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use Inexphone\Sms\Exceptions\SmsException;
 
 class SmsClient
 {
@@ -25,6 +26,19 @@ class SmsClient
             ->timeout($this->timeout);
     }
 
+    protected function handleResponse($response): array
+    {
+        if ($response->failed()) {
+            throw new SmsException(
+                message: $response->json('message', 'InexPhone API request failed.'),
+                status: $response->status(),
+                errors: $response->json('errors'),
+            );
+        }
+
+        return $response->json();
+    }
+
     public function send(
         string $phone,
         string $subject,
@@ -33,8 +47,8 @@ class SmsClient
         ?string $submitCallbackUrl = null,
         ?string $deliveryCallbackUrl = null,
     ): array {
-        return $this->http()
-            ->post('/sms/one', [
+        return $this->handleResponse(
+            $this->http()->post('/sms/one', [
                 'phone' => $phone,
                 'subject' => $subject,
                 'message' => $message,
@@ -42,8 +56,7 @@ class SmsClient
                 'submit_callback_url' => $submitCallbackUrl,
                 'delivery_callback_url' => $deliveryCallbackUrl,
             ])
-            ->throw()
-            ->json();
+        );
     }
 
     public function sendCommercial(
@@ -51,14 +64,13 @@ class SmsClient
         string $subject,
         string $message,
     ): array {
-        return $this->http()
-            ->post('/sms/commercial', [
+        return $this->handleResponse(
+            $this->http()->post('/sms/commercial', [
                 'phone' => $phone,
                 'subject' => $subject,
                 'message' => $message,
             ])
-            ->throw()
-            ->json();
+        );
     }
 
     public function sendBulk(
@@ -68,31 +80,28 @@ class SmsClient
         ?string $submitCallbackUrl = null,
         ?string $deliveryCallbackUrl = null,
     ): array {
-        return $this->http()
-            ->post('/sms/bulk', [
+        return $this->handleResponse(
+            $this->http()->post('/sms/bulk', [
                 'subject' => $subject,
                 'message' => $message,
                 'phone_numbers' => $phoneNumbers,
                 'submit_callback_url' => $submitCallbackUrl,
                 'delivery_callback_url' => $deliveryCallbackUrl,
             ])
-            ->throw()
-            ->json();
+        );
     }
 
     public function list(array $params = []): array
     {
-        return $this->http()
-            ->get('/sms', $params)
-            ->throw()
-            ->json();
+        return $this->handleResponse(
+            $this->http()->get('/sms', $params)
+        );
     }
 
     public function find(string $uuid): array
     {
-        return $this->http()
-            ->get("/sms/{$uuid}")
-            ->throw()
-            ->json();
+        return $this->handleResponse(
+            $this->http()->get("/sms/{$uuid}")
+        );
     }
 }
