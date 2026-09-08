@@ -70,5 +70,42 @@ class SmsClientTest extends TestCase
                 && $request['message'] === 'Commercial message';
         });
     }
-    
+
+    public function test_it_sends_bulk_sms(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/sms/bulk' => Http::response([
+                'message' => 'Bulk SMS submitted successfully.',
+                'data' => [
+                    'id' => 'bulk-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        $response = Sms::sendBulk(
+            subject: 'Bulk Test',
+            message: 'Bulk message',
+            phoneNumbers: [
+                '995591111111',
+                '995592222222',
+            ],
+        );
+
+        $this->assertSame(
+            'Bulk SMS submitted successfully.',
+            $response['message']
+        );
+
+        Http::assertSent(function ($request) {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/bulk'
+                && $request->method() === 'POST'
+                && $request['subject'] === 'Bulk Test'
+                && $request['message'] === 'Bulk message'
+                && $request['phone_numbers'] === [
+                    '995591111111',
+                    '995592222222',
+                ];
+        });
+    }
+
 }
