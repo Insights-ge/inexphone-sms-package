@@ -21,7 +21,7 @@ class SmsServiceProvider extends ServiceProvider
                 baseUrl: $app['config']->get('inexphone-sms.base_url'),
                 token: $app['config']->get('inexphone-sms.token'),
                 language: $app['config']->get('inexphone-sms.language'),
-                timeout: $app['config']->get('inexphone-sms.timeout'),
+                timeout: (int) $app['config']->get('inexphone-sms.timeout'),
             );
         });
 
