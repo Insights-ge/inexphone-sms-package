@@ -1,9 +1,9 @@
 <p align="center">
-  <a href="https://github.com/prayerposition/laravel-inexphone-sms" target="_blank" rel="noopener noreferrer">
+  <a href="https://insights.ge" target="_blank" rel="noopener noreferrer">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="public/images/logo-light.avif">
       <source media="(prefers-color-scheme: light)" srcset="public/images/logo-dark.avif">
-      <img src="public/images/logo-light.avif" alt="Laravel InexPhone SMS Logo" width="180">
+      <img src="public/images/logo-light.avif" alt="Insights Logo" width="180">
     </picture>
   </a>
 </p>
@@ -15,14 +15,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/prayerposition/laravel-inexphone-sms" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/GitHub-PrayerPosition-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
-  </a>
-  <a href="https://packagist.org/packages/prayerposition/laravel-inexphone-sms" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/packagist/v/prayerposition/laravel-inexphone-sms?style=for-the-badge&logo=packagist&logoColor=white" alt="Latest Version">
-  </a>
-  <a href="https://packagist.org/packages/prayerposition/laravel-inexphone-sms" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/packagist/dt/prayerposition/laravel-inexphone-sms?style=for-the-badge&logo=packagist&logoColor=white" alt="Total Downloads">
+  <a href="https://insights.ge" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/Website-insights.ge-007ACC?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Insights Website">
   </a>
   <a href="https://laravel.com" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/Laravel-11%20%7C%2012%20%7C%2013-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 11, 12 and 13">
@@ -30,16 +24,13 @@
   <a href="https://www.php.net" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.2+">
   </a>
-  <a href="https://github.com/prayerposition/laravel-inexphone-sms/actions" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Tests-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white" alt="Tests Passing">
-  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License MIT">
   </a>
 </p>
 
 <p align="center">
-  <a href="#-about-us--prayerposition">About Us</a> •
+  <a href="#-about-us--insights">About Insights</a> •
   <a href="#-key-features">Key Features</a> •
   <a href="#-requirements">Requirements</a> •
   <a href="#-installation">Installation</a> •
@@ -53,9 +44,9 @@
 
 ## 💡 About Us & Insights
 
-**Laravel InexPhone SMS** was created by **PrayerPosition** to provide a clean, reliable, and Laravel-native way to integrate the **InexPhone SMS API** into modern Laravel applications.
+**Laravel InexPhone SMS** was created by the team at [**Insights**](https://insights.ge) to provide a clean, reliable, and Laravel-native way to integrate the **InexPhone SMS API** into modern Laravel applications.
 
-Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, callbacks, API responses, and error handling for every Laravel project, this package provides a reusable integration built specifically around Laravel's conventions and developer experience.
+Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, callbacks, API responses, and error handling for every Laravel project, this package provides a reusable integration built around Laravel's conventions and developer experience.
 
 > *"Integrate once. Send with confidence. Build more."* — **PrayerPosition**
 
@@ -74,7 +65,7 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 ## ✨ Key Features
 
 * 📤 **Single SMS** — Send individual SMS messages through the InexPhone API.
-* 📢 **Commercial SMS** — Send commercial/marketing SMS messages.
+* 📢 **Commercial SMS** — Send commercial SMS messages.
 * 📱 **Bulk SMS** — Send the same message to multiple phone numbers.
 * 📋 **SMS Listing** — Retrieve previously sent SMS messages.
 * 🔎 **SMS Lookup** — Retrieve a specific SMS using its UUID.
