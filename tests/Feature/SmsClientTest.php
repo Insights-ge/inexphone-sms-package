@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Inexphone\Sms\Facades\Sms;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class SmsClientTest extends TestCase
             $response['message']
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/one'
                 && $request->method() === 'POST'
                 && $request['phone'] === '995591950549'
@@ -62,7 +63,7 @@ class SmsClientTest extends TestCase
             $response['message']
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/commercial'
                 && $request->method() === 'POST'
                 && $request['phone'] === '995591950549'
@@ -96,7 +97,7 @@ class SmsClientTest extends TestCase
             $response['message']
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/bulk'
                 && $request->method() === 'POST'
                 && $request['subject'] === 'Bulk Test'
@@ -144,7 +145,7 @@ class SmsClientTest extends TestCase
             $response['message']
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms?page=1&perPage=15&sort=-createDate'
                 && $request->method() === 'GET';
         });
@@ -173,7 +174,7 @@ class SmsClientTest extends TestCase
             $response['message']
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms/test-uuid'
                 && $request->method() === 'GET';
         });
@@ -190,7 +191,10 @@ class SmsClientTest extends TestCase
             ], 422),
         ]);
 
-        $this->expectException(\Inexphone\Sms\Exceptions\SmsException::class);
+        $this->expectException(
+            \Inexphone\Sms\Exceptions\SmsException::class
+        );
+
         $this->expectExceptionMessage('Invalid phone number.');
 
         Sms::send(
@@ -221,6 +225,7 @@ class SmsClientTest extends TestCase
             $this->fail('SmsException was not thrown.');
         } catch (\Inexphone\Sms\Exceptions\SmsException $exception) {
             $this->assertSame(422, $exception->status);
+
             $this->assertSame(
                 ['phone' => ['The phone number is invalid.']],
                 $exception->errors
@@ -248,7 +253,7 @@ class SmsClientTest extends TestCase
             deliveryCallbackUrl: 'https://example.com/delivery',
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request['ignore_blacklist'] === true
                 && $request['submit_callback_url'] === 'https://example.com/submit'
                 && $request['delivery_callback_url'] === 'https://example.com/delivery';
@@ -277,7 +282,7 @@ class SmsClientTest extends TestCase
             deliveryCallbackUrl: 'https://example.com/delivery',
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request['submit_callback_url'] === 'https://example.com/submit'
                 && $request['delivery_callback_url'] === 'https://example.com/delivery';
         });
@@ -300,11 +305,17 @@ class SmsClientTest extends TestCase
             message: 'Hello',
         );
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return ! $request->hasHeader('submit_callback_url')
                 && ! $request->hasHeader('delivery_callback_url')
-                && ! array_key_exists('submit_callback_url', $request->data())
-                && ! array_key_exists('delivery_callback_url', $request->data());
+                && ! array_key_exists(
+                    'submit_callback_url',
+                    $request->data()
+                )
+                && ! array_key_exists(
+                    'delivery_callback_url',
+                    $request->data()
+                );
         });
     }
 
@@ -328,9 +339,15 @@ class SmsClientTest extends TestCase
             ],
         );
 
-        Http::assertSent(function ($request) {
-            return ! array_key_exists('submit_callback_url', $request->data())
-                && ! array_key_exists('delivery_callback_url', $request->data());
+        Http::assertSent(function (Request $request): bool {
+            return ! array_key_exists(
+                'submit_callback_url',
+                $request->data()
+            )
+                && ! array_key_exists(
+                    'delivery_callback_url',
+                    $request->data()
+                );
         });
     }
 
@@ -348,6 +365,7 @@ class SmsClientTest extends TestCase
             $this->fail('SmsException was not thrown.');
         } catch (\Inexphone\Sms\Exceptions\SmsException $exception) {
             $this->assertSame(404, $exception->status);
+
             $this->assertSame(
                 'SMS with provided uuid not found.',
                 $exception->getMessage()
@@ -385,7 +403,7 @@ class SmsClientTest extends TestCase
             ],
         ]);
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (Request $request): bool {
             return $request->url() === 'https://smsservice.inexphone.ge/api/v1/sms?page=2&perPage=10&sort=-createDate&filters%5Bsubject%5D=Test&filters%5Btype%5D=transactional&filters%5Bstate%5D=delivered&filters%5Bnumber%5D=995591111111&filters%5BdateStart%5D=01%2F09%2F2026&filters%5BdateEnd%5D=08%2F09%2F2026'
                 && $request->method() === 'GET';
         });
@@ -408,16 +426,28 @@ class SmsClientTest extends TestCase
             message: 'Hello',
         );
 
-        Http::assertSent(function ($request) {
-            return $request->hasHeader('Authorization', 'Bearer test-token')
-                && $request->hasHeader('Accept', 'application/json')
-                && $request->hasHeader('Accept-Language', 'ka');
+        Http::assertSent(function (Request $request): bool {
+            return $request->hasHeader(
+                'Authorization',
+                'Bearer test-token'
+            )
+                && $request->hasHeader(
+                    'Accept',
+                    'application/json'
+                )
+                && $request->hasHeader(
+                    'Accept-Language',
+                    'ka'
+                );
         });
     }
 
     public function test_it_uses_configured_api_language(): void
     {
-        $this->app['config']->set('inexphone-sms.language', 'en');
+        $this->app['config']->set(
+            'inexphone-sms.language',
+            'en'
+        );
 
         Http::fake([
             'https://smsservice.inexphone.ge/api/v1/sms/one' => Http::response([
@@ -434,8 +464,11 @@ class SmsClientTest extends TestCase
             message: 'Hello',
         );
 
-        Http::assertSent(function ($request) {
-            return $request->hasHeader('Accept-Language', 'en');
+        Http::assertSent(function (Request $request): bool {
+            return $request->hasHeader(
+                'Accept-Language',
+                'en'
+            );
         });
     }
 
@@ -456,8 +489,11 @@ class SmsClientTest extends TestCase
             message: 'Hello',
         );
 
-        Http::assertSent(function ($request) {
-            return $request->hasHeader('Accept-Language', 'ka');
+        Http::assertSent(function (Request $request): bool {
+            return $request->hasHeader(
+                'Accept-Language',
+                'ka'
+            );
         });
     }
 

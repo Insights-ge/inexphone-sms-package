@@ -16,12 +16,41 @@ class SmsServiceProvider extends ServiceProvider
             'inexphone-sms'
         );
 
-        $this->app->singleton(SmsClient::class, function ($app) {
+        $this->app->singleton(SmsClient::class, function () {
+            $baseUrl = config('inexphone-sms.base_url');
+            $token = config('inexphone-sms.token');
+            $language = config('inexphone-sms.language', 'ka');
+            $timeout = config('inexphone-sms.timeout', 30);
+
+            if (! is_string($baseUrl)) {
+                throw new \UnexpectedValueException(
+                    'The InexPhone SMS base URL must be a string.'
+                );
+            }
+
+            if (! is_string($token)) {
+                throw new \UnexpectedValueException(
+                    'The InexPhone SMS token must be a string.'
+                );
+            }
+
+            if (! is_string($language)) {
+                throw new \UnexpectedValueException(
+                    'The InexPhone SMS language must be a string.'
+                );
+            }
+
+            if (! is_int($timeout)) {
+                throw new \UnexpectedValueException(
+                    'The InexPhone SMS timeout must be an integer.'
+                );
+            }
+
             return new SmsClient(
-                baseUrl: $app['config']->get('inexphone-sms.base_url'),
-                token: $app['config']->get('inexphone-sms.token'),
-                language: $app['config']->get('inexphone-sms.language'),
-                timeout: (int) $app['config']->get('inexphone-sms.timeout'),
+                baseUrl: $baseUrl,
+                token: $token,
+                language: $language,
+                timeout: $timeout,
             );
         });
 

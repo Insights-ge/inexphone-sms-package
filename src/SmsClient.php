@@ -30,19 +30,63 @@ class SmsClient implements SmsClientInterface
             ->timeout($this->timeout);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function handleResponse(Response $response): array
     {
         if ($response->failed()) {
+            $message = $response->json('message');
+            $errors = $response->json('errors');
+
+            /** @var array<string, list<string>>|null $validatedErrors */
+            $validatedErrors = null;
+
+            if (is_array($errors)) {
+                $isValid = true;
+
+                foreach ($errors as $key => $value) {
+                    if (! is_string($key) || ! is_array($value)) {
+                        $isValid = false;
+                        break;
+                    }
+
+                    foreach ($value as $error) {
+                        if (! is_string($error)) {
+                            $isValid = false;
+                            break 2;
+                        }
+                    }
+                }
+
+                if ($isValid) {
+                    /** @var array<string, list<string>> $errors */
+                    $validatedErrors = $errors;
+                }
+            }
+
             throw new SmsException(
-                message: $response->json('message', 'InexPhone API request failed.'),
+                message: is_string($message)
+                    ? $message
+                    : 'InexPhone API request failed.',
                 status: $response->status(),
-                errors: $response->json('errors'),
+                errors: $validatedErrors,
             );
         }
 
-        return $response->json();
+        $data = $response->json();
+
+        if (! is_array($data)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function send(
         string $phone,
         string $subject,
@@ -63,6 +107,9 @@ class SmsClient implements SmsClientInterface
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function sendCommercial(
         string $phone,
         string $subject,
@@ -77,6 +124,10 @@ class SmsClient implements SmsClientInterface
         );
     }
 
+    /**
+     * @param array<int, string> $phoneNumbers
+     * @return array<string, mixed>
+     */
     public function sendBulk(
         string $subject,
         string $message,
@@ -95,6 +146,10 @@ class SmsClient implements SmsClientInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
     public function list(array $params = []): array
     {
         return $this->handleResponse(
@@ -102,6 +157,9 @@ class SmsClient implements SmsClientInterface
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function find(string $uuid): array
     {
         return $this->handleResponse(
