@@ -11,6 +11,6 @@ return [
 
     'language' => env('INEXPHONE_SMS_LANGUAGE', 'ka'),
 
-    'timeout' => env('INEXPHONE_SMS_TIMEOUT', 30),
+    'timeout' => (int) env('INEXPHONE_SMS_TIMEOUT', 30),
 
 ];
