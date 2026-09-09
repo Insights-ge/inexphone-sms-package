@@ -4,6 +4,14 @@
     "type": "library",
     "license": "MIT",
 
+    "keywords": [
+        "laravel",
+        "sms",
+        "inexphone",
+        "sms-api",
+        "laravel-package"
+    ],
+
     "autoload": {
         "psr-4": {
             "Inexphone\\Sms\\": "src/"
