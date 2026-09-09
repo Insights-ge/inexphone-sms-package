@@ -97,7 +97,7 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 Install the package using Composer:
 
 ```bash
-composer require insights/laravel-inexphone-sms
+composer require insightsge/laravel-inexphone-sms
 ```
 
 The package service provider is automatically registered through Laravel package discovery.

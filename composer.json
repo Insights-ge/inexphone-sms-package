@@ -1,5 +1,5 @@
 {
-    "name": "insights/laravel-inexphone-sms",
+    "name": "insightsge/laravel-inexphone-sms",
     "description": "Laravel package for the InexPhone SMS API",
     "type": "library",
     "license": "MIT",
