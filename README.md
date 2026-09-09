@@ -12,7 +12,7 @@ A Laravel package for integrating the InexPhone SMS API into Laravel application
 Install the package using Composer:
 
 ```bash
-composer require nikak/laravel-inexphone-sms
+composer require prayerposition/laravel-inexphone-sms
 ```
 
 The package service provider is automatically registered through Laravel package discovery.
@@ -191,7 +191,18 @@ Run the PHPUnit test suite:
 vendor/bin/phpunit
 ```
 
-The package includes automated tests for SMS sending, bulk messaging, callbacks, API errors, headers, configuration, filtering, facade resolution, and service-container bindings.
+The package includes automated tests covering:
+
+* SMS sending
+* Commercial SMS
+* Bulk messaging
+* Callback URLs
+* API errors
+* Request headers
+* Configuration
+* Filtering and pagination
+* Facade resolution
+* Service-container bindings
 
 ## License
 
