@@ -49,4 +49,24 @@ interface SmsClientInterface
      * @return array<string, mixed>
      */
     public function find(string $uuid): array;
+
+    /**
+    * @return array<string, mixed>
+    */
+    public function sendOtp(
+        string $phone,
+        string $subject,
+        ?string $text = null,
+        ?int $expiresIn = null,
+        ?int $codeDigits = null,
+    ): array;
+    
+    /**
+    * @return array<string, mixed>
+    */
+    public function verifyOtp(
+        string $phone,
+        string $code,
+    ): array;
+
 }
