@@ -166,4 +166,42 @@ class SmsClient implements SmsClientInterface
             $this->http()->get("/sms/{$uuid}")
         );
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function sendOtp(
+        string $phone,
+        string $subject,
+        ?string $text = null,
+        ?int $expiresIn = null,
+        ?int $codeDigits = null,
+    ): array {
+        return $this->handleResponse(
+            $this->http()->post('/otp/send', array_filter([
+                'phone' => $phone,
+                'subject' => $subject,
+                'text' => $text,
+                'expiresIn' => $expiresIn,
+                'codeDigits' => $codeDigits,
+            ], static fn (mixed $value): bool => $value !== null))
+        );
+    }
+
+    
+    /**
+     * @return array<string, mixed>
+     */
+    public function verifyOtp(
+        string $phone,
+        string $code,
+    ): array {
+        return $this->handleResponse(
+            $this->http()->post('/otp/verify', [
+                'phone' => $phone,
+                'code' => $code,
+            ])
+        );
+    }
+
 }
