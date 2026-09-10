@@ -46,19 +46,20 @@
 
 **Laravel InexPhone SMS** was created by the team at [**Insights**](https://insights.ge) to provide a clean, reliable, and Laravel-native way to integrate the **InexPhone SMS API** into modern Laravel applications.
 
-Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, callbacks, API responses, and error handling for every Laravel project, this package provides a reusable integration built around Laravel's conventions and developer experience.
+Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, OTP verification, callbacks, API responses, and error handling for every Laravel project, this package provides a reusable integration built around Laravel's conventions and developer experience.
 
 > *"Integrate once. Send with confidence. Build more."* — **PrayerPosition**
 
 ### Why Laravel InexPhone SMS?
 
-* ⚡ **Zero Integration Friction**: Install the package with Composer and start sending SMS messages through a simple Laravel API.
-* 📱 **Complete SMS Support**: Send single, commercial, and bulk SMS messages through a consistent interface.
-* 🔄 **Built-in Callbacks**: Easily configure submit and delivery callback URLs for tracking SMS events.
-* 🔐 **Secure Configuration**: API credentials and configuration are managed through Laravel's environment and configuration system.
-* 🎯 **Laravel-Native Experience**: Automatic service provider discovery, service-container bindings, and a convenient facade make the package feel like a natural part of Laravel.
-* 🛡️ **Reliable Error Handling**: API failures are represented by a dedicated `SmsException`, giving applications access to HTTP status codes and API error details.
-* 🧪 **Quality First**: The package is covered by automated PHPUnit tests and static analysis with Larastan.
+* ⚡ **Zero Integration Friction** — Install the package with Composer and start using the InexPhone API through a simple Laravel API.
+* 📱 **Complete SMS Support** — Send single, commercial, and bulk SMS messages.
+* 🔐 **OTP Support** — Send one-time passwords and verify OTP codes through the InexPhone API.
+* 🔄 **Built-in Callbacks** — Configure submit and delivery callback URLs for supported SMS requests.
+* 🔐 **Secure Configuration** — API credentials and configuration are managed through Laravel's environment and configuration system.
+* 🎯 **Laravel-Native Experience** — Automatic service provider discovery, service-container bindings, and a convenient facade.
+* 🛡️ **Reliable Error Handling** — API failures are represented by a dedicated `SmsException`, giving applications access to HTTP status codes and API error details.
+* 🧪 **Quality First** — The package is covered by automated PHPUnit tests and static analysis with PHPStan/Larastan.
 
 ---
 
@@ -69,9 +70,11 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 * 📱 **Bulk SMS** — Send the same message to multiple phone numbers.
 * 📋 **SMS Listing** — Retrieve previously sent SMS messages.
 * 🔎 **SMS Lookup** — Retrieve a specific SMS using its UUID.
+* 🔐 **OTP Sending** — Send one-time password codes to a phone number.
+* ✅ **OTP Verification** — Verify an OTP code for a phone number.
 * 🔄 **Submit Callbacks** — Receive events related to SMS submission.
 * 📬 **Delivery Callbacks** — Receive SMS delivery status events.
-* 🚫 **Blacklist Control** — Optionally ignore blacklist restrictions for supported requests.
+* 🚫 **Blacklist Control** — Optionally ignore blacklist restrictions for supported SMS requests.
 * 🌐 **Language Support** — Configure the InexPhone API language.
 * 🔐 **Bearer Authentication** — Secure API authentication using your InexPhone token.
 * ⚙️ **Configurable Requests** — Configure the API URL and HTTP timeout through Laravel configuration.
@@ -79,7 +82,7 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 * 🎯 **Facade Support** — Use the convenient `Sms` facade throughout your application.
 * ❌ **Dedicated Exceptions** — Handle API errors using `SmsException`.
 * 🧪 **Automated Testing** — Core functionality is covered by PHPUnit tests.
-* 🔍 **Static Analysis** — The package is checked using Larastan/PHPStan.
+* 🔍 **Static Analysis** — The package is checked using PHPStan/Larastan.
 
 ---
 
@@ -144,6 +147,8 @@ Import the SMS facade:
 use Inexphone\Sms\Facades\Sms;
 ```
 
+---
+
 ### 📤 Send a Single SMS
 
 Send a basic SMS message:
@@ -185,7 +190,7 @@ $response = Sms::sendCommercial(
 
 ### 📱 Send Bulk SMS
 
-Send a message to multiple phone numbers:
+Send the same message to multiple phone numbers:
 
 ```php
 $response = Sms::sendBulk(
@@ -215,9 +220,113 @@ $response = Sms::sendBulk(
 
 ---
 
+### 🔐 Send an OTP
+
+Send a one-time password to a phone number:
+
+```php
+$response = Sms::sendOtp(
+    phone: '995591950549',
+    subject: 'idrive',
+);
+```
+
+The InexPhone API generates the OTP code automatically.
+
+The optional parameters can be used to customize the OTP message, expiration time, and code length:
+
+```php
+$response = Sms::sendOtp(
+    phone: '995591950549',
+    subject: 'idrive',
+    text: 'Your verification code is: {{CODE}}',
+    expiresIn: 120,
+    codeDigits: 6,
+);
+```
+
+### `sendOtp()` Parameters
+
+| Parameter    | Type      | Required | Description                                                              |
+| :----------- | :-------- | :------- | :----------------------------------------------------------------------- |
+| `phone`      | `string`  | Yes      | Phone number that should receive the OTP.                                |
+| `subject`    | `string`  | Yes      | Registered/allowed InexPhone SMS subject.                                |
+| `text`       | `?string` | No       | OTP message text. Use `{{CODE}}` where the generated code should appear. |
+| `expiresIn`  | `?int`    | No       | OTP expiration time in seconds.                                          |
+| `codeDigits` | `?int`    | No       | Number of digits in the generated OTP code.                              |
+
+If the optional parameters are not provided, the InexPhone API applies its defaults.
+
+Default values provided by the API include:
+
+```text
+Message:     Your verification code is: {{CODE}}
+Expiration:  60 seconds
+Code length: 4 digits
+```
+
+The API returns the generated OTP operation information and a success message.
+
+Example response:
+
+```php
+[
+    'message' => 'OTP sent successfully.',
+    'data' => [
+        // API response data
+    ],
+]
+```
+
+> **Note:** The `subject` must be an allowed/registered subject in your InexPhone account. The API may reject subjects that are not permitted.
+
+---
+
+### ✅ Verify an OTP
+
+After the user enters the OTP code they received, verify it:
+
+```php
+$response = Sms::verifyOtp(
+    phone: '995591950549',
+    code: '1552',
+);
+```
+
+A successful verification returns:
+
+```php
+[
+    'message' => 'ok',
+    'data' => [
+        'id' => null,
+        'type' => 'object',
+        'attributes' => [],
+    ],
+]
+```
+
+### `verifyOtp()` Parameters
+
+| Parameter | Type     | Required | Description                           |
+| :-------- | :------- | :------- | :------------------------------------ |
+| `phone`   | `string` | Yes      | Phone number associated with the OTP. |
+| `code`    | `string` | Yes      | OTP code entered by the user.         |
+
+The verification request only requires:
+
+```json
+{
+    "phone": "995551563555",
+    "code": "0123"
+}
+```
+
+---
+
 ## 📋 List SMS Messages
 
-Retrieve SMS messages:
+Retrieve previously sent SMS messages:
 
 ```php
 $response = Sms::list();
@@ -302,7 +411,7 @@ $response = Sms::send(
 );
 ```
 
-Both callbacks can be provided together:
+### Both Callbacks
 
 ```php
 $response = Sms::send(
@@ -313,6 +422,8 @@ $response = Sms::send(
     deliveryCallbackUrl: 'https://example.com/delivery',
 );
 ```
+
+Callbacks are currently available for the SMS sending methods that support them. OTP requests do not require callback URLs.
 
 ---
 
@@ -325,6 +436,8 @@ $response = Sms::send(
 | `Sms::sendBulk()`       | Send SMS to multiple phone numbers |
 | `Sms::list()`           | Retrieve SMS messages              |
 | `Sms::find()`           | Retrieve a specific SMS            |
+| `Sms::sendOtp()`        | Send a one-time password           |
+| `Sms::verifyOtp()`      | Verify a one-time password         |
 
 ---
 
@@ -349,6 +462,24 @@ try {
 }
 ```
 
+The same exception handling applies to OTP requests:
+
+```php
+use Inexphone\Sms\Exceptions\SmsException;
+
+try {
+    $response = Sms::verifyOtp(
+        phone: '995591950549',
+        code: '1234',
+    );
+} catch (SmsException $exception) {
+    $status = $exception->status;
+    $errors = $exception->errors;
+
+    // Handle the verification error...
+}
+```
+
 The exception provides:
 
 * `status` — HTTP status code returned by the InexPhone API.
@@ -368,6 +499,8 @@ The exception provides:
 }
 ```
 
+For example, the OTP API may return validation errors when the supplied phone number, subject, or OTP code is invalid.
+
 ---
 
 ## 🧪 Testing
@@ -378,26 +511,38 @@ Run the PHPUnit test suite:
 vendor/bin/phpunit
 ```
 
-Run static analysis with Larastan:
+Run static analysis with PHPStan/Larastan:
 
 ```bash
 vendor/bin/phpstan analyse
 ```
 
-The package includes automated tests covering:
+The package uses Laravel's HTTP testing tools to test API interactions without making real API requests during the automated test suite.
+
+The test suite covers:
 
 * Single SMS sending
 * Commercial SMS
 * Bulk messaging
-* Callback URLs
+* SMS listing
+* SMS lookup
+* OTP sending
+* OTP sending with optional parameters
+* OTP verification
+* OTP validation errors
 * API errors
+* Callback URLs
 * Request headers
 * Authentication
-* Configuration
+* Configured language
+* Default language
 * Filtering
 * Pagination
 * Facade resolution
 * Service-container bindings
+* Optional parameter handling
+
+Before submitting changes, make sure both the PHPUnit test suite and static analysis pass successfully.
 
 ---
 
@@ -438,6 +583,7 @@ Before submitting a pull request, please make sure that:
 * Static analysis passes.
 * The code follows the existing project conventions.
 * New functionality includes appropriate tests.
+* Documentation is updated when public functionality changes.
 
 ---
 
