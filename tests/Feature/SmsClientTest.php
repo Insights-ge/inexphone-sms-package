@@ -519,4 +519,218 @@ class SmsClientTest extends TestCase
         );
     }
 
+    public function test_it_sends_an_otp(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/send' => Http::response([
+                'message' => 'OTP sent successfully.',
+                'data' => [
+                    'id' => 'otp-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        $response = Sms::sendOtp(
+            phone: '995591950549',
+            subject: 'idrive',
+        );
+
+        $this->assertSame(
+            'OTP sent successfully.',
+            $response['message']
+        );
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/otp/send'
+                && $request->method() === 'POST'
+                && $request['phone'] === '995591950549'
+                && $request['subject'] === 'idrive';
+        });
+    }
+
+    public function test_it_sends_an_otp_with_optional_parameters(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/send' => Http::response([
+                'message' => 'OTP sent successfully.',
+                'data' => [
+                    'id' => 'otp-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::sendOtp(
+            phone: '995591950549',
+            subject: 'idrive',
+            text: 'Your verification code is: {{CODE}}',
+            expiresIn: 120,
+            codeDigits: 6,
+        );
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/otp/send'
+                && $request->method() === 'POST'
+                && $request['phone'] === '995591950549'
+                && $request['subject'] === 'idrive'
+                && $request['text'] === 'Your verification code is: {{CODE}}'
+                && $request['expiresIn'] === 120
+                && $request['codeDigits'] === 6;
+        });
+    }
+
+    public function test_it_verifies_an_otp(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/verify' => Http::response([
+                'message' => 'ok',
+                'data' => [
+                    'id' => null,
+                    'type' => 'object',
+                    'attributes' => [],
+                ],
+            ], 200),
+        ]);
+
+        $response = Sms::verifyOtp(
+            phone: '995591950549',
+            code: '1552',
+        );
+
+        $this->assertSame(
+            'ok',
+            $response['message']
+        );
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() === 'https://smsservice.inexphone.ge/api/v1/otp/verify'
+                && $request->method() === 'POST'
+                && $request['phone'] === '995591950549'
+                && $request['code'] === '1552'
+                && ! array_key_exists('subject', $request->data());
+        });
+    }
+
+    public function test_it_throws_sms_exception_when_sending_otp_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/send' => Http::response([
+                'message' => 'Specified subject is not allowed.',
+                'errors' => [
+                    'subject' => ['The specified subject is not allowed.'],
+                ],
+            ], 422),
+        ]);
+
+        $this->expectException(
+            \Inexphone\Sms\Exceptions\SmsException::class
+        );
+
+        $this->expectExceptionMessage('Specified subject is not allowed.');
+
+        Sms::sendOtp(
+            phone: '995591950549',
+            subject: 'invalid',
+        );
+    }
+
+    public function test_it_throws_sms_exception_when_verifying_otp_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/verify' => Http::response([
+                'message' => 'Invalid OTP code.',
+                'errors' => [
+                    'code' => ['The OTP code is invalid or expired.'],
+                ],
+            ], 422),
+        ]);
+
+        $this->expectException(
+            \Inexphone\Sms\Exceptions\SmsException::class
+        );
+
+        $this->expectExceptionMessage('Invalid OTP code.');
+
+        Sms::verifyOtp(
+            phone: '995591950549',
+            code: '9999',
+        );
+    }
+
+    public function test_it_includes_status_and_errors_in_otp_exception(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/verify' => Http::response([
+                'message' => 'Invalid OTP code.',
+                'errors' => [
+                    'code' => ['The OTP code is invalid or expired.'],
+                ],
+            ], 422),
+        ]);
+
+        try {
+            Sms::verifyOtp(
+                phone: '995591950549',
+                code: '9999',
+            );
+
+            $this->fail('SmsException was not thrown.');
+        } catch (\Inexphone\Sms\Exceptions\SmsException $exception) {
+            $this->assertSame(422, $exception->status);
+
+            $this->assertSame(
+                ['code' => ['The OTP code is invalid or expired.']],
+                $exception->errors
+            );
+        }
+    }
+
+    public function test_it_does_not_send_optional_otp_parameters_when_not_provided(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/send' => Http::response([
+                'message' => 'OTP sent successfully.',
+                'data' => [
+                    'id' => 'otp-test-uuid',
+                ],
+            ], 201),
+        ]);
+
+        Sms::sendOtp(
+            phone: '995591950549',
+            subject: 'idrive',
+        );
+
+        Http::assertSent(function (Request $request): bool {
+            return ! array_key_exists('text', $request->data())
+                && ! array_key_exists('expiresIn', $request->data())
+                && ! array_key_exists('codeDigits', $request->data());
+        });
+    }
+
+    public function test_it_sends_only_phone_and_code_when_verifying_otp(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/otp/verify' => Http::response([
+                'message' => 'ok',
+                'data' => [
+                    'id' => null,
+                    'type' => 'object',
+                    'attributes' => [],
+                ],
+            ], 200),
+        ]);
+
+        Sms::verifyOtp(
+            phone: '995591950549',
+            code: '1552',
+        );
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->data() === [
+                'phone' => '995591950549',
+                'code' => '1552',
+            ];
+        });
+    }
+
 }
