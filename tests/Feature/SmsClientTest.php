@@ -733,4 +733,147 @@ class SmsClientTest extends TestCase
         });
     }
 
+    public function test_it_lists_blacklists(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/blacklists' => Http::response([
+                'message' => 'Blacklists retrieved successfully.',
+                'data' => [
+                    [
+                        'id' => 'blacklist-123',
+                        'type' => 'blacklists',
+                        'attributes' => [
+                            'number' => '995591950549',
+                            'subject' => 'idrive',
+                            'message' => 'Test message',
+                            'status' => 1,
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $result = Sms::blacklists();
+
+        $this->assertSame(
+            'Blacklists retrieved successfully.',
+            $result['message']
+        );
+
+        $data = $result['data'];
+
+        $this->assertIsArray($data);
+        $this->assertCount(1, $data);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() ===
+                'https://smsservice.inexphone.ge/api/v1/blacklists';
+        });
+    }
+
+    public function test_it_lists_blacklists_with_filters(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/blacklists*' => Http::response([
+                'message' => 'Blacklists retrieved successfully.',
+                'data' => [],
+            ], 200),
+        ]);
+
+        Sms::blacklists([
+            'page' => 2,
+            'perPage' => 20,
+            'filters' => [
+                'keywords' => '555',
+                'subjects' => 'idrive',
+                'number' => '995555555555',
+                'dateEnd' => '11/09/2026',
+            ],
+        ]);
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() ===
+                'https://smsservice.inexphone.ge/api/v1/blacklists?page=2&perPage=20&filters%5Bkeywords%5D=555&filters%5Bsubjects%5D=idrive&filters%5Bnumber%5D=995555555555&filters%5BdateEnd%5D=11%2F09%2F2026';
+        });
+    }
+
+    public function test_it_finds_a_blacklist(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/blacklists/blacklist-123' => Http::response([
+                'message' => 'Blacklist record retrieved successfully.',
+                'data' => [
+                    'id' => 'blacklist-123',
+                    'type' => 'blacklists',
+                    'attributes' => [
+                        'number' => '995591950549',
+                        'subject' => 'idrive',
+                        'message' => 'Test message',
+                        'comment' => 'Blocked number',
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $result = Sms::findBlacklist('blacklist-123');
+
+        $this->assertSame(
+            'Blacklist record retrieved successfully.',
+            $result['message']
+        );
+
+        $data = $result['data'];
+
+        $this->assertIsArray($data);
+
+        $this->assertSame(
+            'blacklist-123',
+            $data['id']
+        );
+        
+        Http::assertSent(function (Request $request): bool {
+            return $request->url() ===
+                'https://smsservice.inexphone.ge/api/v1/blacklists/blacklist-123';
+        });
+    }
+
+    public function test_it_throws_sms_exception_when_listing_blacklists_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/blacklists' => Http::response([
+                'message' => 'Unauthenticated.',
+                'errors' => [
+                    'general' => ['Invalid bearer token.'],
+                ],
+            ], 401),
+        ]);
+
+        $this->expectException(
+            \Inexphone\Sms\Exceptions\SmsException::class
+        );
+
+        $this->expectExceptionMessage('Unauthenticated.');
+
+        Sms::blacklists();
+    }
+    
+    public function test_it_throws_sms_exception_when_finding_blacklist_fails(): void
+    {
+        Http::fake([
+            'https://smsservice.inexphone.ge/api/v1/blacklists/blacklist-999' => Http::response([
+                'message' => 'Blacklist record not found.',
+                'errors' => [
+                    'general' => ['The requested blacklist record was not found.'],
+                ],
+            ], 404),
+        ]);
+
+        $this->expectException(
+            \Inexphone\Sms\Exceptions\SmsException::class
+        );
+
+        $this->expectExceptionMessage('Blacklist record not found.');
+
+        Sms::findBlacklist('blacklist-999');
+    }
 }
