@@ -31,16 +31,23 @@
 
 <p align="center">
   <a href="https://github.com/Insights-ge/inexphone-sms-ai" target="_blank" rel="noopener noreferrer">
-    🤖 <strong>AI Assistant Skill</strong>
+    <img src="https://img.shields.io/badge/%F0%9F%A4%96%20AI%20Assistant-Skill-8B5CF6?style=for-the-badge" alt="AI Assistant Skill">
   </a>
 </p>
 
 <p align="center">
-  Official local AI knowledge and integration skill for working with the Laravel InexPhone SMS package using OpenAI Codex, Claude Code, Cursor, Gemini CLI, Junie, OpenCode, and other AI coding tools.
+  <strong>Official AI knowledge and integration skill for Laravel InexPhone SMS.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Insights-ge/inexphone-sms-ai" target="_blank" rel="noopener noreferrer">
+    Learn more about the AI Assistant Skill →
+  </a>
 </p>
 
 <p align="center">
   <a href="#-about-us--insights">About Insights</a> •
+  <a href="#-ai-assistant-skill">🤖 AI Assistant</a> •
   <a href="#-key-features">Key Features</a> •
   <a href="#-requirements">Requirements</a> •
   <a href="#-installation">Installation</a> •
@@ -71,6 +78,84 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 * 🎯 **Laravel-Native Experience** — Automatic service provider discovery, service-container bindings, and a convenient facade.
 * 🛡️ **Reliable Error Handling** — API failures are represented by a dedicated `SmsException`, giving applications access to HTTP status codes and API error details.
 * 🧪 **Quality First** — The package is covered by automated PHPUnit tests and static analysis with PHPStan/Larastan.
+
+---
+
+## 🤖 AI Assistant Skill
+
+<p align="center">
+  <a href="https://github.com/Insights-ge/inexphone-sms-ai" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/OPEN%20AI%20ASSISTANT%20SKILL-Insights--ge-8B5CF6?style=for-the-badge" alt="Laravel InexPhone SMS AI Assistant Skill">
+  </a>
+</p>
+
+<p align="center">
+  <strong>Give your AI coding assistant official knowledge about Laravel InexPhone SMS.</strong>
+</p>
+
+The **Laravel InexPhone SMS AI Assistant Skill** is an official local knowledge and integration skill created by **Insights** for developers who use AI coding assistants while working with this package.
+
+It provides AI coding tools with package-specific knowledge about the InexPhone SMS API, Laravel integration, available methods, configuration, request parameters, OTP functionality, callbacks, blacklist operations, error handling, and common development workflows.
+
+Instead of relying on generic knowledge or guessing how the package works, your AI coding assistant can use the dedicated skill as a knowledge source when working with **Laravel InexPhone SMS**.
+
+### 🧠 Supported AI Coding Tools
+
+The skill is designed to work with popular AI-powered development tools, including:
+
+* **OpenAI Codex**
+* **Claude Code**
+* **Cursor**
+* **Gemini CLI**
+* **Junie**
+* **OpenCode**
+* Other compatible AI coding assistants
+
+### 🚀 What Can the AI Skill Help With?
+
+The skill can help developers and AI coding assistants understand and work with:
+
+* 📤 Sending single SMS messages
+* 📢 Sending commercial SMS messages
+* 📱 Sending bulk SMS messages
+* 🔐 Implementing OTP workflows
+* ✅ Verifying OTP codes
+* 🚫 Working with blacklist records
+* 🔄 Configuring submit and delivery callbacks
+* ⚙️ Configuring the package
+* 🛡️ Handling `SmsException`
+* 🔎 Understanding available API methods
+* 🧩 Integrating the package into Laravel applications
+* 🧪 Understanding testing patterns
+* 🔧 Troubleshooting package-related implementation issues
+
+### 💡 Why Use the AI Skill?
+
+Modern development increasingly involves AI coding assistants. Providing the assistant with package-specific knowledge can make development faster and more accurate.
+
+The **Laravel InexPhone SMS AI Assistant Skill** gives your AI coding assistant a dedicated reference for this package instead of requiring it to infer the package's API from generic Laravel or PHP knowledge.
+
+This makes it especially useful when:
+
+* Starting a new Laravel application
+* Adding SMS functionality to an existing application
+* Implementing phone verification
+* Building OTP authentication
+* Working with SMS callbacks
+* Debugging InexPhone API integrations
+* Asking an AI assistant to implement package functionality
+
+### 📚 Get the AI Assistant Skill
+
+The AI Assistant Skill is maintained separately from the Laravel package:
+
+<p align="center">
+  <a href="https://github.com/Insights-ge/inexphone-sms-ai" target="_blank" rel="noopener noreferrer">
+    <strong>👉 View the Laravel InexPhone SMS AI Assistant Skill</strong>
+  </a>
+</p>
+
+> **Recommended:** If you use an AI coding assistant while developing with this package, add the AI Assistant Skill to your AI development workflow for package-specific guidance.
 
 ---
 
