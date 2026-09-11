@@ -204,4 +204,25 @@ class SmsClient implements SmsClientInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    public function blacklists(array $params = []): array
+    {
+        return $this->handleResponse(
+            $this->http()->get('/blacklists', $params)
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function findBlacklist(string $id): array
+    {
+        return $this->handleResponse(
+            $this->http()->get("/blacklists/{$id}")
+        );
+    }
+    
 }

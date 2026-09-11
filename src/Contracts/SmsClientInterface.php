@@ -69,4 +69,15 @@ interface SmsClientInterface
         string $code,
     ): array;
 
+    /**
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    public function blacklists(array $params = []): array;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function findBlacklist(string $id): array;
+
 }
