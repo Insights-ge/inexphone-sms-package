@@ -30,6 +30,16 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Insights-ge/inexphone-sms-ai" target="_blank" rel="noopener noreferrer">
+    🤖 <strong>AI Assistant Skill</strong>
+  </a>
+</p>
+
+<p align="center">
+  Official local AI knowledge and integration skill for working with the Laravel InexPhone SMS package using OpenAI Codex, Claude Code, Cursor, Gemini CLI, Junie, OpenCode, and other AI coding tools.
+</p>
+
+<p align="center">
   <a href="#-about-us--insights">About Insights</a> •
   <a href="#-key-features">Key Features</a> •
   <a href="#-requirements">Requirements</a> •
@@ -320,7 +330,7 @@ The verification request only requires:
 
 ```json
 {
-    "phone": "995551563555",
+    "phone": "995555111111",
     "code": "0123"
 }
 ```
