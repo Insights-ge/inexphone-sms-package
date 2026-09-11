@@ -46,7 +46,7 @@
 
 **Laravel InexPhone SMS** was created by the team at [**Insights**](https://insights.ge) to provide a clean, reliable, and Laravel-native way to integrate the **InexPhone SMS API** into modern Laravel applications.
 
-Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, OTP verification, callbacks, API responses, and error handling for every Laravel project, this package provides a reusable integration built around Laravel's conventions and developer experience.
+Instead of repeatedly implementing HTTP authentication, request handling, SMS payloads, OTP verification, callbacks, blacklist access, API responses, and error handling for every Laravel project, this package provides a reusable integration built around Laravel's conventions and developer experience.
 
 > *"Integrate once. Send with confidence. Build more."* — **PrayerPosition**
 
@@ -55,6 +55,7 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 * ⚡ **Zero Integration Friction** — Install the package with Composer and start using the InexPhone API through a simple Laravel API.
 * 📱 **Complete SMS Support** — Send single, commercial, and bulk SMS messages.
 * 🔐 **OTP Support** — Send one-time passwords and verify OTP codes through the InexPhone API.
+* 🚫 **Blacklist Access** — Retrieve blacklist records and inspect individual blacklist entries.
 * 🔄 **Built-in Callbacks** — Configure submit and delivery callback URLs for supported SMS requests.
 * 🔐 **Secure Configuration** — API credentials and configuration are managed through Laravel's environment and configuration system.
 * 🎯 **Laravel-Native Experience** — Automatic service provider discovery, service-container bindings, and a convenient facade.
@@ -72,6 +73,8 @@ Instead of repeatedly implementing HTTP authentication, request handling, SMS pa
 * 🔎 **SMS Lookup** — Retrieve a specific SMS using its UUID.
 * 🔐 **OTP Sending** — Send one-time password codes to a phone number.
 * ✅ **OTP Verification** — Verify an OTP code for a phone number.
+* 🚫 **Blacklist Listing** — Retrieve blacklist records with pagination and filtering.
+* 🔎 **Blacklist Lookup** — Retrieve a specific blacklist record by ID.
 * 🔄 **Submit Callbacks** — Receive events related to SMS submission.
 * 📬 **Delivery Callbacks** — Receive SMS delivery status events.
 * 🚫 **Blacklist Control** — Optionally ignore blacklist restrictions for supported SMS requests.
@@ -385,6 +388,112 @@ $response = Sms::find('sms-uuid');
 
 ---
 
+## 🚫 List Blacklist Records
+
+Retrieve blacklist records from InexPhone:
+
+```php
+$response = Sms::blacklists();
+```
+
+The response contains the blacklist records together with pagination metadata:
+
+```php
+[
+    'data' => [],
+    'meta' => [
+        'pagination' => [
+            'total' => 0,
+            'count' => 0,
+            'perPage' => 200,
+            'currentPage' => 1,
+            'totalPages' => 1,
+            'links' => [
+                'next' => null,
+                'previous' => null,
+            ],
+        ],
+    ],
+    'message' => 'ok',
+]
+```
+
+You can also provide pagination and filters:
+
+```php
+$response = Sms::blacklists([
+    'page' => 1,
+    'perPage' => 20,
+    'filters' => [
+        'keywords' => '555',
+        'subjects' => 'idrive',
+        'number' => '995591950549',
+        'dateEnd' => '11/09/2026',
+    ],
+]);
+```
+
+### `blacklists()` Parameters
+
+| Parameter           | Type     | Description                             |
+| :------------------ | :------- | :-------------------------------------- |
+| `page`              | `int`    | Page number.                            |
+| `perPage`           | `int`    | Number of records per page.             |
+| `filters[keywords]` | `string` | Filter by number, message, or comment.  |
+| `filters[subjects]` | `string` | Comma-separated subjects for filtering. |
+| `filters[number]`   | `string` | Filter by phone number.                 |
+| `filters[dateEnd]`  | `string` | End date filter in `d/m/Y` format.      |
+
+Example:
+
+```php
+$response = Sms::blacklists([
+    'page' => 1,
+    'perPage' => 10,
+    'filters' => [
+        'keywords' => '555',
+        'subjects' => 'idrive',
+    ],
+]);
+```
+
+---
+
+## 🔎 Find a Blacklist Record
+
+Retrieve a specific blacklist record by its ID:
+
+```php
+$response = Sms::findBlacklist('blacklist-id');
+```
+
+A blacklist record can contain information such as the phone number, subject, message, comment, creation date, update date, and blacklist metadata.
+
+Example response:
+
+```php
+[
+    'message' => 'ok',
+    'data' => [
+        'id' => 'blacklist-id',
+        'type' => 'blacklists',
+        'attributes' => [
+            'number' => '995591950549',
+            'subject' => 'idrive',
+            'message' => 'Example message',
+            'comment' => 'Blocked number',
+            'createdAt' => '...',
+            'updatedAt' => '...',
+            'deletedAt' => null,
+        ],
+    ],
+]
+```
+
+> **Note:** The package currently supports retrieving blacklist records through the documented InexPhone API endpoints. Adding or removing blacklist records is not included because the provided API documentation does not expose create or delete blacklist endpoints.
+
+---
+
 ## 🔄 Callbacks
 
 The package supports callback URLs for SMS submission and delivery events.
@@ -429,15 +538,17 @@ Callbacks are currently available for the SMS sending methods that support them.
 
 ## 📚 Available Methods
 
-| Method                  | Description                        |
-| :---------------------- | :--------------------------------- |
-| `Sms::send()`           | Send a single SMS                  |
-| `Sms::sendCommercial()` | Send a commercial SMS              |
-| `Sms::sendBulk()`       | Send SMS to multiple phone numbers |
-| `Sms::list()`           | Retrieve SMS messages              |
-| `Sms::find()`           | Retrieve a specific SMS            |
-| `Sms::sendOtp()`        | Send a one-time password           |
-| `Sms::verifyOtp()`      | Verify a one-time password         |
+| Method                  | Description                          |
+| :---------------------- | :----------------------------------- |
+| `Sms::send()`           | Send a single SMS                    |
+| `Sms::sendCommercial()` | Send a commercial SMS                |
+| `Sms::sendBulk()`       | Send SMS to multiple phone numbers   |
+| `Sms::list()`           | Retrieve SMS messages                |
+| `Sms::find()`           | Retrieve a specific SMS              |
+| `Sms::sendOtp()`        | Send a one-time password             |
+| `Sms::verifyOtp()`      | Verify a one-time password           |
+| `Sms::blacklists()`     | Retrieve blacklist records           |
+| `Sms::findBlacklist()`  | Retrieve a specific blacklist record |
 
 ---
 
@@ -462,21 +573,18 @@ try {
 }
 ```
 
-The same exception handling applies to OTP requests:
+The same exception handling applies to OTP and blacklist requests:
 
 ```php
 use Inexphone\Sms\Exceptions\SmsException;
 
 try {
-    $response = Sms::verifyOtp(
-        phone: '995591950549',
-        code: '1234',
-    );
+    $response = Sms::findBlacklist('blacklist-id');
 } catch (SmsException $exception) {
     $status = $exception->status;
     $errors = $exception->errors;
 
-    // Handle the verification error...
+    // Handle the error...
 }
 ```
 
@@ -499,7 +607,7 @@ The exception provides:
 }
 ```
 
-For example, the OTP API may return validation errors when the supplied phone number, subject, or OTP code is invalid.
+For example, the API may return validation errors when supplied parameters are invalid.
 
 ---
 
@@ -526,6 +634,9 @@ The test suite covers:
 * Bulk messaging
 * SMS listing
 * SMS lookup
+* Blacklist listing
+* Blacklist filtering
+* Blacklist lookup
 * OTP sending
 * OTP sending with optional parameters
 * OTP verification
